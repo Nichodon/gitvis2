@@ -1,4 +1,8 @@
 import git
 
 repo = git.Repo('.')
-print repo.git.status()
+
+commits = list(repo.iter_commits('master'))
+names = map(lambda x: x.parents, commits)
+
+print names
