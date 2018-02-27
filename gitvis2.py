@@ -51,28 +51,43 @@ status.grid(row=1, column=0, columnspan=2, sticky=EW)
 sText = Message(status, text=repo.git.status())
 sText.grid(row=0, column=0)
 
+
+def follow():
+    n = 0
+    while True:
+        if n not in used:
+            used.append(n)
+            return n
+        n += 1
+
+
+def replace(a, b):
+    lanes[a] = min(lanes[a], b) if a in lanes else b
+
+
 y = 20
-used = 0
+used = []
 for i in range(len(commits)):
     commit = commits[i]
-    if commit.hexsha in children:
-        print children[commit.hexsha]
-        lanes[commit.hexsha] = lanes[children[commit.hexsha]]
+    d = 0
+    if commit.hexsha in lanes:
+        d = lanes[commit.hexsha]
     else:
-        lanes[commit.hexsha] = used
-        used += 1
-        print 'a ' + commit.hexsha
+        d = follow()
+        lanes[commit.hexsha] = d
+    first = 0
     for parent in commit.parents:
-        children[parent.hexsha] = commit.hexsha
+        replace(parent.hexsha, lanes[commit.hexsha] if first == 0 else follow())
+        first += 1
     pprint.pprint(children)
-    d = lanes[commit.hexsha] * 5
+    d *= 20
     tag = canvas.create_rectangle(10, y - 10, 740, y + 10,
                                   fill='#eee' if (y / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
     canvas.create_oval(15 + d, y - 5, 25 + d, y + 5, fill='red', tags='t' + str(i))
-    canvas.create_text(50, y, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
-    canvas.create_text(200, y, text=commit.message.split('\n')[0], anchor=W, tags='t' + str(i))
-    canvas.create_text(400, y, text=commit.author.name, anchor=W, tags='t' + str(i))
-    canvas.create_text(500, y, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
+    canvas.create_text(200, y, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
+    canvas.create_text(300, y, text=commit.message.split('\n')[0], anchor=W, tags='t' + str(i))
+    canvas.create_text(550, y, text=commit.author.name, anchor=W, tags='t' + str(i))
+    canvas.create_text(650, y, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
     canvas.tag_bind('t' + str(i), '<Button-1>', click)
     y += 20
 
