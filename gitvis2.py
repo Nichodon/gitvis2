@@ -7,10 +7,7 @@ import time
 repo = git.Repo('.')
 
 commits = list(repo.iter_commits('master'))
-names = map(lambda l1: [l1.hexsha, map(lambda l2: l2.hexsha, l1.parents),
-                        l1.message.rstrip(), l1.author.name, l1.authored_date], commits)
 
-pprint.pprint(names)
 
 def click(x):
     iText.config(text=x)
@@ -37,8 +34,6 @@ status.grid(row=1, column=0, columnspan=2, sticky=EW)
 sText = Message(status, text=repo.git.status())
 sText.grid(row=0, column=0)
 
-def scroll_start(event):
-    canvas.scan_mark(0, event.y)
 y = 20
 for commit in commits:
     tag = canvas.create_rectangle(10, y - 10, 740, y + 10,
@@ -54,11 +49,10 @@ for commit in commits:
     y += 20
 
 
-def scroll_move(event):
-    canvas.scan_dragto(0, event.y, gain=1)
+def mousewheel(event):
+    canvas.yview_scroll(int(-math.copysign(1, event.delta)), "units")
 
 
-canvas.bind("<ButtonPress-1>", scroll_start)
-canvas.bind("<B1-Motion>", scroll_move)
+root.bind_all("<MouseWheel>", mousewheel)
 
 mainloop()
