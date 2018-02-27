@@ -6,21 +6,38 @@ import time
 
 repo = git.Repo('.')
 
-commits = list(repo.iter_commits('master'))
+commits = list(repo.iter_commits())
+children = {}
+lanes = {}
 
 
-def click(x):
-    iText.config(text=x)
-    print x
+def leading(x):
+    return '0' + str(x) if x < 10 else str(x)
+
+
+def year(x):
+    sec = time.gmtime(x)
+    return str(sec.tm_year) + '-' + leading(sec.tm_mon) + '-' + str(sec.tm_mday)
+
+
+def hour(x):
+    sec = time.gmtime(x)
+    return leading(sec.tm_hour) + ':' + leading(sec.tm_min) + ':' + leading(sec.tm_sec)
+
+
+def click(event):
+    c = commits[int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])]
+    iText.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
+                      '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' + hour(c.authored_date))
 
 
 root = Tk()
 
-info = LabelFrame(root, text='Info', width=500)
-info.grid(row=0, column=0, sticky=NS)
+info = LabelFrame(root, text='Info', width=100000)
+info.grid(row=0, column=0)
 
 iText = Message(info, text='hi', width=500)
-iText.grid(row=0, column=0)
+iText.grid(row=0, column=0, sticky=EW)
 
 graph = LabelFrame(root, text='Graph')
 graph.grid(row=0, column=1)
@@ -35,17 +52,28 @@ sText = Message(status, text=repo.git.status())
 sText.grid(row=0, column=0)
 
 y = 20
-for commit in commits:
+used = 0
+for i in range(len(commits)):
+    commit = commits[i]
+    if commit.hexsha in children:
+        print children[commit.hexsha]
+        lanes[commit.hexsha] = lanes[children[commit.hexsha]]
+    else:
+        lanes[commit.hexsha] = used
+        used += 1
+        print 'a ' + commit.hexsha
+    for parent in commit.parents:
+        children[parent.hexsha] = commit.hexsha
+    pprint.pprint(children)
+    d = lanes[commit.hexsha] * 5
     tag = canvas.create_rectangle(10, y - 10, 740, y + 10,
-                                  fill='#eee' if (y / 20) % 2 == 1 else 'white', outline='', tags='tag')
-    canvas.create_oval(15, y - 5, 25, y + 5, fill='red', tags='tag')
-    canvas.create_text(50, y, text=commit.hexsha[:7], anchor=W, tags='tag')
-    canvas.create_text(200, y, text=commit.message.split('\n')[0], anchor=W, tags='tag')
-    canvas.create_text(400, y, text=commit.author.name, anchor=W, tags='tag')
-    date = time.gmtime(commit.authored_date)
-    mon = ('0' if date.tm_mon < 10 else '') + str(date.tm_mon)
-    canvas.create_text(500, y, text=str(date.tm_year) + '-' + mon + '-' + str(date.tm_mday), anchor=W, tags='tag')
-    canvas.tag_bind('tag', '<Button-1>', lambda x: click(commit))
+                                  fill='#eee' if (y / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
+    canvas.create_oval(15 + d, y - 5, 25 + d, y + 5, fill='red', tags='t' + str(i))
+    canvas.create_text(50, y, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
+    canvas.create_text(200, y, text=commit.message.split('\n')[0], anchor=W, tags='t' + str(i))
+    canvas.create_text(400, y, text=commit.author.name, anchor=W, tags='t' + str(i))
+    canvas.create_text(500, y, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
+    canvas.tag_bind('t' + str(i), '<Button-1>', click)
     y += 20
 
 
