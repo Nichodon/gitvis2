@@ -11,7 +11,7 @@ class Point:
         self.y = y
 
 
-repo = git.Repo('../nichodon.github.io')
+repo = git.Repo('../anematode.github.io')
 
 commits = list(repo.iter_commits())
 lanes = {}
@@ -35,8 +35,12 @@ def hour(x):
 
 def click(event):
     c = commits[int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])]
+    thing = ''
+    for parent in c.parents:
+        thing += parent.hexsha[:7] + '\n'
     iText.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
-                      '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' + hour(c.authored_date))
+                      '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' +
+                      hour(c.authored_date) + '\n\n\nparents' + thing)
 
 
 root = Tk()
@@ -60,41 +64,48 @@ sText = Message(status, text=repo.git.status())
 sText.grid(row=0, column=0)
 
 
+def connect(p1, p2, q1, q2):
+    if p1 < q1:
+        canvas.create_line(p1, p2, q1, p2)
+        canvas.create_line(q1, p2, q1, q2)
+    else:
+        canvas.create_line(p1, p2, p1, q2)
+        canvas.create_line(p1, q2, q1, q2)
+
+
 def follow():
     n = 0
     while True:
-        if n not in used:
-            used.append(n)
+        if n not in used or used[n] <= 0:
+            used[n] = 0
             return n
         n += 1
 
 
-def replace(a, b):
-    lanes[a] = min(lanes[a], b) if a in lanes else b
-
-
 e = 20
-used = []
+used = {}
+lane = 0
 for i in range(len(commits)):
     commit = commits[i]
-    d = lanes[commit.hexsha] if commit.hexsha in lanes else follow()
-    lanes[commit.hexsha] = d
-    d *= 10
-    first = 0
+    print commit.hexsha
+    lane = lanes[commit.hexsha] if commit.hexsha in lanes else 0
+    used[lane] = used[lane] - 1 if lane in used else 0
     for parent in commit.parents:
+        overflow = follow()
+        lanes[parent.hexsha] = min(lanes[parent.hexsha], overflow) if parent.hexsha in lanes else overflow
+        used[overflow] += 1
         if parent.hexsha in children:
             children[parent.hexsha].append(commit.hexsha)
         else:
             children[parent.hexsha] = [commit.hexsha]
-        replace(parent.hexsha, lanes[commit.hexsha] if first == 0 else follow())
-        first += 1
+    lane *= 10
     tag = canvas.create_rectangle(10, e - 10, 740, e + 10,
                                   fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
-    positions[commit.hexsha] = Point(d + 20, e)
+    positions[commit.hexsha] = Point(lane + 20, e)
     if commit.hexsha in children:
         for child in children[commit.hexsha]:
-            canvas.create_line(d + 20, e, positions[child].x, positions[child].y)
-    canvas.create_oval(15 + d, e - 5, 25 + d, e + 5, fill='red', tags='t' + str(i))
+            connect(lane + 20, e, positions[child].x, positions[child].y)
+    canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='red', tags='t' + str(i))
     canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
     canvas.create_text(300, e, text=commit.message.split('\n')[0], anchor=W, tags='t' + str(i))
     canvas.create_text(550, e, text=commit.author.name, anchor=W, tags='t' + str(i))
