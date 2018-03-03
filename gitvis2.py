@@ -25,7 +25,7 @@ def leading(x):
 
 def year(x):
     sec = time.gmtime(x)
-    return str(sec.tm_year) + '-' + leading(sec.tm_mon) + '-' + str(sec.tm_mday)
+    return str(sec.tm_year) + '-' + leading(sec.tm_mon) + '-' + leading(sec.tm_mday)
 
 
 def hour(x):
@@ -54,7 +54,7 @@ iText.grid(row=0, column=0, sticky=EW)
 graph = LabelFrame(root, text='Graph')
 graph.grid(row=0, column=1)
 
-canvas = Canvas(graph, width=750, height=250, bg='white', scrollregion=(0, 0, 1000, 10000))
+canvas = Canvas(graph, width=800, height=500, bg='white', scrollregion=(0, 0, 1000, 10000))
 canvas.grid(row=0, column=0)
 
 status = LabelFrame(root, text='Status')
@@ -99,7 +99,7 @@ for i in range(len(commits)):
         else:
             children[parent.hexsha] = [commit.hexsha]
     lane *= 10
-    tag = canvas.create_rectangle(10, e - 10, 740, e + 10,
+    tag = canvas.create_rectangle(10, e - 10, 790, e + 10,
                                   fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
     positions[commit.hexsha] = Point(lane + 20, e)
     if commit.hexsha in children:
@@ -107,9 +107,10 @@ for i in range(len(commits)):
             connect(lane + 20, e, positions[child].x, positions[child].y)
     canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='red', tags='t' + str(i))
     canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
-    canvas.create_text(300, e, text=commit.message.split('\n')[0], anchor=W, tags='t' + str(i))
-    canvas.create_text(550, e, text=commit.author.name, anchor=W, tags='t' + str(i))
-    canvas.create_text(650, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
+    line = commit.message.split('\n')[0]
+    canvas.create_text(250, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
+    canvas.create_text(600, e, text=commit.author.name, anchor=W, tags='t' + str(i))
+    canvas.create_text(700, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
     canvas.tag_bind('t' + str(i), '<Button-1>', click)
     e += 20
 
