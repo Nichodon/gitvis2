@@ -3,7 +3,7 @@ import pprint
 from Tkinter import *
 import math
 import time
-import random
+import colorsys
 
 
 class Point:
@@ -65,8 +65,8 @@ sText = Message(status, text=repo.git.status())
 sText.grid(row=0, column=0)
 
 
-def connect(p1, p2, q1, q2):
-    r = lambda: random.randint(0,255)
+def connect(p1, p2, q1, q2, h):
+    color = '#%02X%02X%02X' % tuple([q * 255 for q in colorsys.hsv_to_rgb(h, 0.8, 0.8)])
     a1 = q1
     b1 = p1
     a2 = q2
@@ -77,15 +77,15 @@ def connect(p1, p2, q1, q2):
         a2 = p2
         b2 = q2
     if a1 == b1:
-        canvas.create_line(a1, a2, b1, b2, fill='#%02X%02X%02X' % (r(),r(),r()))
+        canvas.create_line(a1, a2, b1, b2, fill=color)
     elif a2 < b2:
-        canvas.create_line(a1, a2, b1 - 5, a2)
-        canvas.create_line(b1 - 5, a2, b1, a2 + 5)
-        canvas.create_line(b1, a2 + 5, b1, b2)
+        canvas.create_line(a1, a2, b1 - 5, a2, fill=color)
+        canvas.create_line(b1 - 5, a2, b1, a2 + 5, fill=color)
+        canvas.create_line(b1, a2 + 5, b1, b2, fill=color)
     else:
-        canvas.create_line(a1, a2, b1 - 5, a2)
-        canvas.create_line(b1 - 5, a2, b1, a2 - 5)
-        canvas.create_line(b1, a2 - 5, b1, b2)
+        canvas.create_line(a1, a2, b1 - 5, a2, fill=color)
+        canvas.create_line(b1 - 5, a2, b1, a2 - 5, fill=color)
+        canvas.create_line(b1, a2 - 5, b1, b2, fill=color)
 
 
 def follow():
@@ -97,6 +97,7 @@ def follow():
 
 
 e = 20
+hue = 0
 used = []
 lane = 0
 big = {}
@@ -109,7 +110,6 @@ for i in range(len(commits)):
             if child in lanes and lanes[child] != lane and lanes[child] in used:
                 used.remove(lanes[child])
         print "      ::::::::" + str(lane) + "   " + str(used)'''
-    pprint.pprint(big)
     if lane in big:
         big[lane].remove(commit.hexsha)
     x = 0
@@ -137,8 +137,10 @@ for i in range(len(commits)):
     positions[commit.hexsha] = Point(lane + 20, e)
     if commit.hexsha in children:
         for child in children[commit.hexsha]:
-            connect(lane + 20, e, positions[child].x, positions[child].y)
-    canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='red', tags='t' + str(i))
+            hue += 0.5555
+            print hue
+            connect(lane + 20, e, positions[child].x, positions[child].y, hue)
+    canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='white', tags='t' + str(i))
     canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
     line = commit.message.split('\n')[0]
     canvas.create_text(250, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
