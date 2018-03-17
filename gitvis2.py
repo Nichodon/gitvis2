@@ -77,15 +77,15 @@ def connect(p1, p2, q1, q2, h):
         a2 = p2
         b2 = q2
     if a1 == b1:
-        canvas.create_line(a1, a2, b1, b2, fill=color)
+        canvas.create_line(a1, a2 + 4, b1, b2 - 3, fill=color)
     elif a2 < b2:
-        canvas.create_line(a1, a2, b1 - 4, a2, fill=color)
+        canvas.create_line(a1 + 4, a2, b1 - 4, a2, fill=color)
         canvas.create_line(b1 - 4, a2, b1, a2 + 4, fill=color)
-        canvas.create_line(b1, a2 + 4, b1, b2, fill=color)
+        canvas.create_line(b1, a2 + 4, b1, b2 - 3, fill=color)
     else:
-        canvas.create_line(a1, a2, b1 - 4, a2, fill=color)
+        canvas.create_line(a1 + 4, a2, b1 - 4, a2, fill=color)
         canvas.create_line(b1 - 4, a2, b1, a2 - 4, fill=color)
-        canvas.create_line(b1, a2 - 4, b1, b2, fill=color)
+        canvas.create_line(b1, a2 - 4, b1, b2 + 3, fill=color)
 
 
 def follow():
