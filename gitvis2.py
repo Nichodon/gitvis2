@@ -137,7 +137,7 @@ for i in range(len(commits)):
     positions[commit.hexsha] = Point(lane + 20, e)
     if commit.hexsha in children:
         for child in children[commit.hexsha]:
-            hue += 0.5555
+            hue += 0.275
             print hue
             connect(lane + 20, e, positions[child].x, positions[child].y, hue)
     canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='white', tags='t' + str(i))
