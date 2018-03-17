@@ -12,7 +12,7 @@ class Point:
         self.y = y
 
 
-repo = git.Repo('../anematode.github.io')
+repo = git.Repo('../gitvis')
 
 commits = list(repo.iter_commits())
 lanes = {}
@@ -79,13 +79,13 @@ def connect(p1, p2, q1, q2, h):
     if a1 == b1:
         canvas.create_line(a1, a2, b1, b2, fill=color)
     elif a2 < b2:
-        canvas.create_line(a1, a2, b1 - 5, a2, fill=color)
-        canvas.create_line(b1 - 5, a2, b1, a2 + 5, fill=color)
-        canvas.create_line(b1, a2 + 5, b1, b2, fill=color)
+        canvas.create_line(a1, a2, b1 - 4, a2, fill=color)
+        canvas.create_line(b1 - 4, a2, b1, a2 + 4, fill=color)
+        canvas.create_line(b1, a2 + 4, b1, b2, fill=color)
     else:
-        canvas.create_line(a1, a2, b1 - 5, a2, fill=color)
-        canvas.create_line(b1 - 5, a2, b1, a2 - 5, fill=color)
-        canvas.create_line(b1, a2 - 5, b1, b2, fill=color)
+        canvas.create_line(a1, a2, b1 - 4, a2, fill=color)
+        canvas.create_line(b1 - 4, a2, b1, a2 - 4, fill=color)
+        canvas.create_line(b1, a2 - 4, b1, b2, fill=color)
 
 
 def follow():
@@ -135,12 +135,12 @@ for i in range(len(commits)):
     tag = canvas.create_rectangle(10, e - 10, 890, e + 10,
                                   fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
     positions[commit.hexsha] = Point(lane + 20, e)
+    canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
     if commit.hexsha in children:
         for child in children[commit.hexsha]:
             hue += 0.275
             print hue
             connect(lane + 20, e, positions[child].x, positions[child].y, hue)
-    canvas.create_oval(15 + lane, e - 5, 25 + lane, e + 5, fill='white', tags='t' + str(i))
     canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
     line = commit.message.split('\n')[0]
     canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
