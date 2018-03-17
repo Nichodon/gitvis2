@@ -98,6 +98,7 @@ def update(name):
     e = 20
     hue = 0
     big = {}
+
     for i in range(len(commits)):
         commit = commits[i]
         lane = lanes[commit.hexsha] if commit.hexsha in lanes else 0
@@ -118,7 +119,7 @@ def update(name):
             else:
                 children[parent.hexsha] = [commit.hexsha]
         lane *= 10
-        tag = canvas.create_rectangle(10, e - 10, 890, e + 10,
+        canvas.create_rectangle(10, e - 10, 890, e + 10,
                                       fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
         canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
