@@ -33,8 +33,8 @@ def click(event):
     for higher in c.parents:
         thing += higher.hexsha + '\n'
     i_text.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
-                       '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' +
-                       hour(c.authored_date) + '\n\nParents:\n' + thing)
+                       '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' + hour(c.authored_date)
+                       + '\n\nParents:\n' + thing)
 
 
 def connect(p1, p2, q1, q2, h):
@@ -119,8 +119,8 @@ def update(name):
             else:
                 children[parent.hexsha] = [commit.hexsha]
         lane *= 10
-        canvas.create_rectangle(10, e - 10, 890, e + 10,
-                                      fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
+        canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='',
+                                tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
         canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
         if commit.hexsha in children:
@@ -139,35 +139,29 @@ def update(name):
 
 
 root = Tk()
+root.bind_all('<MouseWheel>', mousewheel)
+root.wm_title('GitVis2 1.0 Beta')
 
 info = LabelFrame(root, text='Info', width=100000)
 info.grid(row=0, column=0, sticky=NS)
-
 i_text = Message(info)
 i_text.grid(row=0, column=0)
 
 graph = LabelFrame(root, text='Graph')
 graph.grid(row=0, column=1)
-
 canvas = Canvas(graph, width=900, height=500, bg='white')
 canvas.grid(row=0, column=0)
 
 status = LabelFrame(root, text='Status')
 status.grid(row=1, column=0, columnspan=2, sticky=EW)
-
 s_text = Message(status)
 s_text.grid(row=0, column=0)
 
 menu = Menu(root)
-
 files = Menu(menu, tearoff=0)
 files.add_command(label="Open", command=new)
 menu.add_cascade(label="File", menu=files)
-
 root.config(menu=menu)
-
-root.bind_all('<MouseWheel>', mousewheel)
-root.wm_title('GitVis2 1.0 Beta')
 
 update('.')
 
