@@ -12,14 +12,6 @@ class Point:
         self.y = y
 
 
-repo = git.Repo('../gitvis')
-
-commits = list(repo.iter_commits())
-lanes = {}
-positions = {}
-children = {}
-
-
 def leading(x):
     return '0' + str(x) if x < 10 else str(x)
 
@@ -37,32 +29,11 @@ def hour(x):
 def click(event):
     c = commits[int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])]
     thing = ''
-    for parent in c.parents:
-        thing += parent.hexsha[:7] + '\n'
-    iText.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
+    for higher in c.parents:
+        thing += higher.hexsha + '\n'
+    i_text.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
                       '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' +
-                      hour(c.authored_date) + '\n\n\nparents' + thing)
-
-
-root = Tk()
-
-info = LabelFrame(root, text='Info', width=100000)
-info.grid(row=0, column=0)
-
-iText = Message(info, text='hi', width=500)
-iText.grid(row=0, column=0, sticky=EW)
-
-graph = LabelFrame(root, text='Graph')
-graph.grid(row=0, column=1)
-
-canvas = Canvas(graph, width=900, height=500, bg='white', scrollregion=(0, 0, 1000, 10000))
-canvas.grid(row=0, column=0)
-
-status = LabelFrame(root, text='Status')
-status.grid(row=1, column=0, columnspan=2, sticky=EW)
-
-sText = Message(status, text=repo.git.status())
-sText.grid(row=0, column=0)
+                      hour(c.authored_date) + '\n\nParents:\n' + thing)
 
 
 def connect(p1, p2, q1, q2, h):
@@ -96,66 +67,90 @@ def follow():
         n += 1
 
 
-e = 20
-hue = 0
-used = []
-lane = 0
-big = {}
-for i in range(len(commits)):
-    commit = commits[i]
-    lane = lanes[commit.hexsha] if commit.hexsha in lanes else 0
-    '''if commit.hexsha in children:
-        for child in children[commit.hexsha]:
-            print lanes[child] if child in lanes else "nah",
-            if child in lanes and lanes[child] != lane and lanes[child] in used:
-                used.remove(lanes[child])
-        print "      ::::::::" + str(lane) + "   " + str(used)'''
-    if lane in big:
-        big[lane].remove(commit.hexsha)
-    x = 0
-    for parent in commit.parents:
-        overflow = follow()
-        if x == 0:
-            overflow = lane
-        if parent.hexsha in lanes:
-            big[lanes[parent.hexsha]].remove(parent.hexsha)
-        lanes[parent.hexsha] = overflow
-        if overflow in big:
-            big[overflow].append(parent.hexsha)
-        else:
-            big[overflow] = [parent.hexsha]
-        if overflow not in used:
-            used.append(overflow)
-        if parent.hexsha in children:
-            children[parent.hexsha].append(commit.hexsha)
-        else:
-            children[parent.hexsha] = [commit.hexsha]
-        x += 1
-    lane *= 10
-    tag = canvas.create_rectangle(10, e - 10, 890, e + 10,
-                                  fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
-    positions[commit.hexsha] = Point(lane + 20, e)
-    canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
-    if commit.hexsha in children:
-        for child in children[commit.hexsha]:
-            hue += 0.275
-            print hue
-            connect(lane + 20, e, positions[child].x, positions[child].y, hue)
-    canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
-    line = commit.message.split('\n')[0]
-    canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
-    canvas.create_text(700, e, text=commit.author.name, anchor=W, tags='t' + str(i))
-    canvas.create_text(800, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
-    canvas.tag_bind('t' + str(i), '<Button-1>', click)
-    e += 20
-
-canvas.config(scrollregion=(0, 0, 1000, e))
-
-
 def mousewheel(event):
     canvas.yview_scroll(int(-math.copysign(1, event.delta)), 'units')
 
 
-root.bind_all('<MouseWheel>', mousewheel)
+big = {}
+canvas = Canvas()
+commits = []
+i_text = Message()
 
-mainloop()
+
+def update(name):
+    global commits, i_text, canvas, big
+    repo = git.Repo(name)
+
+    commits = list(repo.iter_commits())
+    lanes = {}
+    positions = {}
+    children = {}
+
+    root = Tk()
+
+    info = LabelFrame(root, text='Info', width=100000)
+    info.grid(row=0, column=0)
+
+    i_text = Message(info, text='hi', width=500)
+    i_text.grid(row=0, column=0, sticky=EW)
+
+    graph = LabelFrame(root, text='Graph')
+    graph.grid(row=0, column=1)
+
+    canvas = Canvas(graph, width=900, height=500, bg='white')
+    canvas.grid(row=0, column=0)
+
+    status = LabelFrame(root, text='Status')
+    status.grid(row=1, column=0, columnspan=2, sticky=EW)
+
+    s_text = Message(status, text=repo.git.status())
+    s_text.grid(row=0, column=0)
+
+    e = 20
+    hue = 0
+    big = {}
+    for i in range(len(commits)):
+        commit = commits[i]
+        lane = lanes[commit.hexsha] if commit.hexsha in lanes else 0
+        if lane in big:
+            big[lane].remove(commit.hexsha)
+        parents = list(commit.parents)
+        parents.sort(key=lambda x: commits.index(x))
+        for parent in parents:
+            if parent.hexsha not in lanes:
+                overflow = follow()
+                lanes[parent.hexsha] = overflow
+                if overflow in big:
+                    big[overflow].append(parent.hexsha)
+                else:
+                    big[overflow] = [parent.hexsha]
+            if parent.hexsha in children:
+                children[parent.hexsha].append(commit.hexsha)
+            else:
+                children[parent.hexsha] = [commit.hexsha]
+        lane *= 10
+        tag = canvas.create_rectangle(10, e - 10, 890, e + 10,
+                                      fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='', tags='t' + str(i))
+        positions[commit.hexsha] = Point(lane + 20, e)
+        canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
+        if commit.hexsha in children:
+            for child in children[commit.hexsha]:
+                hue += 0.275
+                connect(lane + 20, e, positions[child].x, positions[child].y, hue)
+        canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
+        line = commit.message.split('\n')[0]
+        canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
+        canvas.create_text(700, e, text=commit.author.name, anchor=W, tags='t' + str(i))
+        canvas.create_text(800, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
+        canvas.tag_bind('t' + str(i), '<Button-1>', click)
+        e += 20
+
+    canvas.config(scrollregion=(0, 0, 1000, e))
+
+    root.bind_all('<MouseWheel>', mousewheel)
+    root.wm_title('GitVis2 1.0 Beta')
+
+    mainloop()
+
+
+update('../gitvis')
