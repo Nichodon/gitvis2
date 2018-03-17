@@ -12,7 +12,7 @@ class Point:
         self.y = y
 
 
-repo = git.Repo('../nichodon.github.io')
+repo = git.Repo('../anematode.github.io')
 
 commits = list(repo.iter_commits())
 lanes = {}
