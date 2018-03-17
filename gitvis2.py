@@ -4,6 +4,7 @@ from Tkinter import *
 import math
 import time
 import colorsys
+import tkFileDialog
 
 
 class Point:
@@ -32,8 +33,8 @@ def click(event):
     for higher in c.parents:
         thing += higher.hexsha + '\n'
     i_text.config(text='Commit SHA1:\n' + c.hexsha + '\n\nMessage:\n' + c.message + '\n\nAuthor:\n' + c.author.name +
-                      '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' +
-                      hour(c.authored_date) + '\n\nParents:\n' + thing)
+                       '\n' + c.author.email + '\n\nDate: ' + year(c.authored_date) + '\nTime: ' +
+                       hour(c.authored_date) + '\n\nParents:\n' + thing)
 
 
 def connect(p1, p2, q1, q2, h):
@@ -72,39 +73,27 @@ def mousewheel(event):
 
 
 big = {}
-canvas = Canvas()
 commits = []
-i_text = Message()
+
+
+def new():
+    directory = tkFileDialog.askdirectory()
+    if directory != '':
+        update(directory)
 
 
 def update(name):
-    global commits, i_text, canvas, big
+    global commits, big
+
     repo = git.Repo(name)
+    canvas.delete("all")
+    s_text.config(text=repo.git.status())
+    i_text.config(text='GitVis 2 BETA')
 
     commits = list(repo.iter_commits())
     lanes = {}
     positions = {}
     children = {}
-
-    root = Tk()
-
-    info = LabelFrame(root, text='Info', width=100000)
-    info.grid(row=0, column=0)
-
-    i_text = Message(info, text='hi', width=500)
-    i_text.grid(row=0, column=0, sticky=EW)
-
-    graph = LabelFrame(root, text='Graph')
-    graph.grid(row=0, column=1)
-
-    canvas = Canvas(graph, width=900, height=500, bg='white')
-    canvas.grid(row=0, column=0)
-
-    status = LabelFrame(root, text='Status')
-    status.grid(row=1, column=0, columnspan=2, sticky=EW)
-
-    s_text = Message(status, text=repo.git.status())
-    s_text.grid(row=0, column=0)
 
     e = 20
     hue = 0
@@ -147,10 +136,38 @@ def update(name):
 
     canvas.config(scrollregion=(0, 0, 1000, e))
 
-    root.bind_all('<MouseWheel>', mousewheel)
-    root.wm_title('GitVis2 1.0 Beta')
 
-    mainloop()
+root = Tk()
 
+info = LabelFrame(root, text='Info', width=100000)
+info.grid(row=0, column=0, sticky=NS)
 
-update('../gitvis')
+i_text = Message(info)
+i_text.grid(row=0, column=0)
+
+graph = LabelFrame(root, text='Graph')
+graph.grid(row=0, column=1)
+
+canvas = Canvas(graph, width=900, height=500, bg='white')
+canvas.grid(row=0, column=0)
+
+status = LabelFrame(root, text='Status')
+status.grid(row=1, column=0, columnspan=2, sticky=EW)
+
+s_text = Message(status)
+s_text.grid(row=0, column=0)
+
+menu = Menu(root)
+
+files = Menu(menu, tearoff=0)
+files.add_command(label="Open", command=new)
+menu.add_cascade(label="File", menu=files)
+
+root.config(menu=menu)
+
+root.bind_all('<MouseWheel>', mousewheel)
+root.wm_title('GitVis2 1.0 Beta')
+
+update('.')
+
+root.mainloop()
