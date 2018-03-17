@@ -12,7 +12,7 @@ class Point:
         self.y = y
 
 
-repo = git.Repo('../anematode.github.io')
+repo = git.Repo('../nichodon.github.io')
 
 commits = list(repo.iter_commits())
 lanes = {}
@@ -148,6 +148,8 @@ for i in range(len(commits)):
     canvas.create_text(800, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
     canvas.tag_bind('t' + str(i), '<Button-1>', click)
     e += 20
+
+canvas.config(scrollregion=(0, 0, 1000, e))
 
 
 def mousewheel(event):
