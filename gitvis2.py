@@ -54,12 +54,15 @@ def connect(p1, p2, q1, q2, h):
         canvas.create_line(a1 + 4, a2, b1 - 6, a2, fill=color)
         canvas.create_line(b1 - 6, a2, b1 - 4, a2 + 2, fill=color)
         canvas.create_line(b1 - 4, a2 + 2, b1 - 4, b2 - 7, fill=color)
-        canvas.create_line(b1 - 4, b2 - 7, b1, b2 - 3, fill=color)
+        canvas.create_line(a1 + 3, a2, b1 - 7, a2, fill=color)
+        canvas.create_line(b1 - 7, a2, b1 - 5, a2 + 2, fill=color)
+        canvas.create_line(b1 - 5, a2 + 2, b1 - 5, b2 - 5, fill=color)
+        canvas.create_line(b1 - 5, b2 - 5, b1 - 2, b2 - 2, fill=color)
     else:
-        canvas.create_line(a1 + 4, a2, b1 - 6, a2, fill=color)
-        canvas.create_line(b1 - 6, a2, b1 - 4, a2 - 2, fill=color)
-        canvas.create_line(b1 - 4, a2 - 2, b1 - 4, b2 + 7, fill=color)
-        canvas.create_line(b1 - 4, b2 + 7, b1, b2 + 3, fill=color)
+        canvas.create_line(a1 + 3, a2, b1 - 7, a2, fill=color)
+        canvas.create_line(b1 - 7, a2, b1 - 5, a2 - 2, fill=color)
+        canvas.create_line(b1 - 5, a2 - 2, b1 - 5, b2 + 5, fill=color)
+        canvas.create_line(b1 - 5, b2 + 5, b1 - 2, b2 + 2, fill=color)
 
 
 def follow():
@@ -121,10 +124,10 @@ def update(name):
             else:
                 children[parent.hexsha] = [commit.hexsha]
         lane *= 10
-        canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else 'white', outline='',
+        canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else '#fff', outline='',
                                 tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
-        canvas.create_oval(lane + 17, e - 3, lane + 23, e + 3, fill='white', tags='t' + str(i))
+        canvas.create_rectangle(lane + 18, e - 2, lane + 23, e + 3, fill='#999', outline='', tags='t' + str(i))
         if commit.hexsha in children:
             for child in children[commit.hexsha]:
                 hue += 0.275
