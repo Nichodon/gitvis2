@@ -49,11 +49,8 @@ def connect(p1, p2, q1, q2, h):
         a2 = p2
         b2 = q2
     if a1 == b1:
-        canvas.create_line(a1, a2 + 4, b1, b2 - 3, fill=color)
+        canvas.create_line(a1, a2 + 3, b1, b2 - 2, fill=color)
     elif a2 < b2:
-        canvas.create_line(a1 + 4, a2, b1 - 6, a2, fill=color)
-        canvas.create_line(b1 - 6, a2, b1 - 4, a2 + 2, fill=color)
-        canvas.create_line(b1 - 4, a2 + 2, b1 - 4, b2 - 7, fill=color)
         canvas.create_line(a1 + 3, a2, b1 - 7, a2, fill=color)
         canvas.create_line(b1 - 7, a2, b1 - 5, a2 + 2, fill=color)
         canvas.create_line(b1 - 5, a2 + 2, b1 - 5, b2 - 5, fill=color)
