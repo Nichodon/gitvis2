@@ -27,8 +27,21 @@ def hour(x):
     return leading(sec.tm_hour) + ':' + leading(sec.tm_min) + ':' + leading(sec.tm_sec)
 
 
+current = [None, '']
+
+
 def click(event):
-    c = commits[int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])]
+    global current
+    if current[0]:
+        canvas.itemconfig(current[0], fill=current[1])
+
+    number = int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])
+    color = '#fff' if number % 2 == 1 else '#eee'
+    current = [event.widget.find_withtag('current'), color]
+
+    canvas.itemconfig(event.widget.find_withtag('current'), fill='#ccc')
+
+    c = commits[number]
     thing = ''
     for higher in c.parents:
         thing += higher.hexsha + '\n'
@@ -128,16 +141,17 @@ def update(name):
         canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else '#fff', outline='',
                                 tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
-        canvas.create_rectangle(lane + 18, e - 2, lane + 23, e + 3, fill='#999', outline='', tags='t' + str(i))
+        canvas.create_rectangle(lane + 18, e - 2, lane + 23, e + 3, fill='#999', outline='')
+        canvas.create_rectangle(lane + 19, e - 1, lane + 22, e + 2, fill='#fff', outline='')
         if commit.hexsha in children:
             for child in children[commit.hexsha]:
                 hue += 0.275
                 connect(lane + 20, e, positions[child].x, positions[child].y, hue)
-        canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W, tags='t' + str(i))
+        canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W)
         line = commit.message.split('\n')[0]
-        canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W, tags='t' + str(i))
-        canvas.create_text(700, e, text=commit.author.name, anchor=W, tags='t' + str(i))
-        canvas.create_text(800, e, text=year(commit.authored_date), anchor=W, tags='t' + str(i))
+        canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W)
+        canvas.create_text(700, e, text=commit.author.name, anchor=W)
+        canvas.create_text(800, e, text=year(commit.authored_date), anchor=W)
         canvas.tag_bind('t' + str(i), '<Button-1>', click)
         e += 20
 
