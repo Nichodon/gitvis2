@@ -159,13 +159,13 @@ def update(name):
                 connect(lane + 20, e, positions[child].x, positions[child].y, hue)
         canvas.create_text(200, e, text=commit.hexsha[:7], anchor=W)
         line = commit.message.split('\n')[0]
-        canvas.create_text(300, e, text=line[:50] + ' ...' if len(line) > 50 else line, anchor=W)
-        canvas.create_text(700, e, text=commit.author.name, anchor=W)
-        canvas.create_text(800, e, text=year(commit.authored_date), anchor=W)
+        canvas.create_text(300, e, text=line[:40] + ' ...' if len(line) > 40 else line, anchor=W)
+        canvas.create_text(600, e, text=commit.author.name, anchor=W)
+        canvas.create_text(700, e, text=year(commit.authored_date), anchor=W)
         canvas.tag_bind('t' + str(i), '<Button-1>', click)
         e += 20
 
-    canvas.config(scrollregion=(0, 0, 1000, e))
+    canvas.config(scrollregion=(0, 0, 0, e))
     click(Blank())
 
 
@@ -180,14 +180,14 @@ i_text.grid(row=0, column=0)
 
 graph = LabelFrame(root, text='Graph')
 graph.grid(row=0, column=1)
-canvas = Canvas(graph, width=900, height=500, bg='white')
+canvas = Canvas(graph, width=800, height=400, bg='white')
 canvas.grid(row=0, column=0)
 
 status = LabelFrame(root, text='Status')
 status.grid(row=1, column=0, columnspan=2, sticky=EW)
 s_text = Message(status)
 s_text.grid(row=0, column=0)
-t_text = Text(status, relief='flat', borderwidth=0, height=25, bg=s_text.cget('bg'), font=s_text.cget('font'))
+t_text = Text(status, relief='flat', borderwidth=0, height=20, bg=s_text.cget('bg'), font=s_text.cget('font'))
 t_text.grid(row=0, column=1)
 t_scroll = Scrollbar(status, command=t_text.yview)
 t_scroll.grid(row=0, column=2, sticky=NS)
