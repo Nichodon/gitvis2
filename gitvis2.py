@@ -118,7 +118,6 @@ def update(name):
     t_text.delete(1.0, END)
     t_text.insert(END, repo.git.diff())
     t_text.config(state=DISABLED)
-    i_text.config(text='GitVis 2 BETA')
 
     commits = list(repo.iter_commits())
     lanes = {}
@@ -167,6 +166,7 @@ def update(name):
         e += 20
 
     canvas.config(scrollregion=(0, 0, 1000, e))
+    click(Blank())
 
 
 root = Tk()
@@ -200,6 +200,4 @@ root.config(menu=menu)
 
 update('.')
 
-click(Blank())
-
-root.mainloop()
+mainloop()
