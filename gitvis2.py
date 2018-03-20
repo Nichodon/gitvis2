@@ -13,6 +13,11 @@ class Point:
         self.y = y
 
 
+class Blank:
+    def __init__(self):
+        self.widget = 0
+
+
 def leading(x):
     return '0' + str(x) if x < 10 else str(x)
 
@@ -32,16 +37,22 @@ current = [None, '']
 
 def click(event):
     global current
-    if current[0]:
-        canvas.itemconfig(current[0], fill=current[1])
+    canvas.itemconfig(canvas.find_withtag('t0'), fill='#eee')
+    if event.widget != 0:
+        if current[0]:
+            canvas.itemconfig(current[0], fill=current[1])
 
-    number = int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])
-    color = '#fff' if number % 2 == 1 else '#eee'
-    current = [event.widget.find_withtag('current'), color]
+        number = int(canvas.itemcget(event.widget.find_withtag('current'), 'tags').split(' ')[0][1:])
+        color = '#fff' if number % 2 == 1 else '#eee'
+        current = [event.widget.find_withtag('current'), color]
 
-    canvas.itemconfig(event.widget.find_withtag('current'), fill='#ccc')
+        canvas.itemconfig(event.widget.find_withtag('current'), fill='#ccc')
 
-    c = commits[number]
+        c = commits[number]
+    else:
+        c = commits[0]
+        canvas.itemconfig(canvas.find_withtag('t0'), fill='#ccc')
+
     thing = ''
     for higher in c.parents:
         thing += higher.hexsha + '\n'
@@ -138,8 +149,8 @@ def update(name):
             else:
                 children[parent.hexsha] = [commit.hexsha]
         lane *= 10
-        canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else '#fff', outline='',
-                                tags='t' + str(i))
+        canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else '#fff',
+                                outline='', tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
         canvas.create_rectangle(lane + 18, e - 2, lane + 23, e + 3, fill='#999', outline='')
         canvas.create_rectangle(lane + 19, e - 1, lane + 22, e + 2, fill='#fff', outline='')
@@ -188,5 +199,7 @@ menu.add_cascade(label="File", menu=files)
 root.config(menu=menu)
 
 update('.')
+
+click(Blank())
 
 root.mainloop()
