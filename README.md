@@ -1,0 +1,2 @@
+# GitVis 2
+This is a better and more functional version of my old project GitVis. Right now I am still beta developing, so certain features might be buggy! To run this program, clone this repository, then run the python. **Make sure you have installed GitPython**! You can switch repositories under `File > Open`. Line drawing is not quite there, so for complex projects there might be some bad overlap. I'm hoping to fix that soon.
