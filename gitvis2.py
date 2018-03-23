@@ -108,7 +108,10 @@ def new():
         update(directory)
 
 
-def update(name):
+def branch():
+    pass
+
+def update(name, b):
     global commits, big
 
     repo = git.Repo(name)
@@ -119,7 +122,9 @@ def update(name):
     t_text.insert(END, repo.git.diff())
     t_text.config(state=DISABLED)
 
-    commits = list(repo.iter_commits())
+    heads = repo.heads
+
+    commits = list(repo.iter_commits(b if b in heads else None))
     lanes = {}
     positions = {}
     children = {}
@@ -170,7 +175,6 @@ def update(name):
 
 
 root = Tk()
-root.bind_all('<MouseWheel>', mousewheel)
 root.wm_title('GitVis2 1.0 Beta')
 
 info = LabelFrame(root, text='Info', width=100000)
@@ -182,6 +186,7 @@ graph = LabelFrame(root, text='Graph')
 graph.grid(row=0, column=1)
 canvas = Canvas(graph, width=800, height=400, bg='white')
 canvas.grid(row=0, column=0)
+graph.bind_all('<MouseWheel>', mousewheel)
 
 status = LabelFrame(root, text='Status')
 status.grid(row=1, column=0, columnspan=2, sticky=EW)
@@ -195,9 +200,10 @@ t_scroll.grid(row=0, column=2, sticky=NS)
 menu = Menu(root)
 files = Menu(menu, tearoff=0)
 files.add_command(label="Open", command=new)
+files.add_command(label="Change Branch", command=branch)
 menu.add_cascade(label="File", menu=files)
 root.config(menu=menu)
 
-update('.')
+update('.', '')
 
 mainloop()
