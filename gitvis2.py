@@ -5,6 +5,7 @@ import math
 import time
 import colorsys
 import tkFileDialog
+import getopt
 
 
 class Point:
@@ -100,21 +101,49 @@ def mousewheel(event):
 
 big = {}
 commits = []
+heads = []
+selected = ''
 
 
 def new():
     directory = tkFileDialog.askdirectory()
     if directory != '':
-        update(directory)
+        update(directory, '')
+
+
+def done(top, v):
+    top.destroy()
+    update(selected, v.get())
 
 
 def branch():
-    pass
+    top = Toplevel()
+    top.title("About this application...")
+
+    v = StringVar()
+    v.set('master')
+
+    for head in heads:
+        b = Radiobutton(top, text=head.name, variable=v, value=head.name)
+        b.pack(anchor=W)
+
+    button = Button(top, text="Dismiss", command=lambda: done(top, v))
+    button.pack()
+
 
 def update(name, b):
-    global commits, big
+    global commits, big, heads, selected
+
+    selected = name
 
     repo = git.Repo(name)
+    commits = []
+    for name in [x.name for x in repo.heads]:
+        commits += list(repo.iter_commits(name))
+        commits = list(set(commits))
+
+    commits.sort(key=lambda y: y.authored_date, reverse=True)
+
     canvas.delete("all")
     s_text.config(text=repo.git.status())
     t_text.config(state=NORMAL)
@@ -124,7 +153,8 @@ def update(name, b):
 
     heads = repo.heads
 
-    commits = list(repo.iter_commits(b if b in heads else None))
+    print(commits)
+    #commits = list(repo.iter_commits(b if b in heads else None))
     lanes = {}
     positions = {}
     children = {}
@@ -135,8 +165,8 @@ def update(name, b):
 
     for i in range(len(commits)):
         commit = commits[i]
-        lane = lanes[commit.hexsha] if commit.hexsha in lanes else 0
-        if lane in big:
+        lane = lanes[commit.hexsha] if commit.hexsha in lanes else follow()
+        if lane in big and commit.hexsha in big[lane]:
             big[lane].remove(commit.hexsha)
         parents = list(commit.parents)
         parents.sort(key=lambda x: commits.index(x))
