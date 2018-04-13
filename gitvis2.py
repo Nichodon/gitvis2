@@ -76,14 +76,16 @@ def connect(p1, p2, q1, q2, h):
     if a1 == b1:
         canvas.create_line(a1, a2 + 3, b1, b2 - 2, fill=color)
     elif a2 < b2:
-        canvas.create_line(a1 + 3, a2, b1 - 7, a2, fill=color)
-        canvas.create_line(b1 - 7, a2, b1 - 5, a2 + 2, fill=color)
-        canvas.create_line(b1 - 5, a2 + 2, b1 - 5, b2 - 5, fill=color)
+        canvas.create_line(a1 + 3, a2 + 3, a1 + 5, a2 + 5, fill=color)
+        canvas.create_line(a1 + 5, a2 + 5, b1 - 10, a2 + 5, fill=color)
+        canvas.create_line(b1 - 10, a2 + 5, b1 - 5, a2 + 10, fill=color)
+        canvas.create_line(b1 - 5, a2 + 10, b1 - 5, b2 - 5, fill=color)
         canvas.create_line(b1 - 5, b2 - 5, b1 - 2, b2 - 2, fill=color)
     else:
-        canvas.create_line(a1 + 3, a2, b1 - 7, a2, fill=color)
-        canvas.create_line(b1 - 7, a2, b1 - 5, a2 - 2, fill=color)
-        canvas.create_line(b1 - 5, a2 - 2, b1 - 5, b2 + 5, fill=color)
+        canvas.create_line(a1 + 3, a2 - 3, a1 + 5, a2 - 5, fill=color)
+        canvas.create_line(a1 + 5, a2 - 5, b1 - 10, a2 - 5, fill=color)
+        canvas.create_line(b1 - 10, a2 - 5, b1 - 5, a2 - 10, fill=color)
+        canvas.create_line(b1 - 5, a2 - 10, b1 - 5, b2 + 5, fill=color)
         canvas.create_line(b1 - 5, b2 + 5, b1 - 2, b2 + 2, fill=color)
 
 
@@ -182,7 +184,7 @@ def update(name, b):
                 children[parent.hexsha].append(commit.hexsha)
             else:
                 children[parent.hexsha] = [commit.hexsha]
-        lane *= 10
+        lane *= 20
         canvas.create_rectangle(10, e - 10, 890, e + 10, fill='#eee' if (e / 20) % 2 == 1 else '#fff',
                                 outline='', tags='t' + str(i))
         positions[commit.hexsha] = Point(lane + 20, e)
