@@ -1,0 +1,22 @@
+{
+  "name": "gitvis2",
+  "version": "0.1.0",
+  "description": "GitVis in JS",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nichodon/gitvis2.git"
+  },
+  "author": "Nichodon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nichodon/gitvis2/issues"
+  },
+  "homepage": "https://github.com/Nichodon/gitvis2#readme",
+  "devDependencies": {
+    "electron": "^2.0.0"
+  }
+}
